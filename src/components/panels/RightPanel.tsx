@@ -8,6 +8,8 @@ import { prim } from '@/lib/algorithms/prim'
 import { kruskal } from '@/lib/algorithms/kruskal'
 import { greedyColoring } from '@/lib/algorithms/coloring'
 import { exportGraphJSON, importGraphJSON } from '@/utils/graphHelpers'
+import { findHamiltonianCircuit, countSimplePaths } from '@/lib/algorithms/hamilton'
+import { findEulerianPath } from '@/lib/algorithms/euler'
 
 type Tab = 'props' | 'algo'
 
@@ -22,6 +24,9 @@ const ALGO_DESCRIPTIONS: Record<string, string> = {
   prim:     'Arbre couvrant minimal — construit depuis un sommet source.',
   kruskal:  'Arbre couvrant minimal — tri des arêtes par poids croissant.',
   coloring: 'Colorie les sommets de façon optimale. Double-clic sur une arête pour modifier son poids.',
+  hamilton: 'Recherche un circuit passant par chaque sommet une fois. Limité à 15 sommets (NP-complet).',
+  paths:    'Compte tous les chemins simples entre deux sommets. Limité à 15 sommets.',
+  euler:    'Construit le chemin/circuit eulérien via l\'algorithme de Hierholzer.',
 }
 
 export default function RightPanel() {
@@ -79,6 +84,18 @@ export default function RightPanel() {
         window.dispatchEvent(
           new CustomEvent('graphlab:coloring', { detail: { colorMap: result.nodeColors } })
         )
+        break
+      }
+      case 'hamilton': {
+        setAlgoResult(findHamiltonianCircuit(graph))
+        break
+      }
+      case 'paths': {
+        setAlgoResult(countSimplePaths(graph, src, tgt))
+        break
+      }
+      case 'euler': {
+        setAlgoResult(findEulerianPath(graph))
         break
       }
     }
@@ -238,6 +255,11 @@ export default function RightPanel() {
                 </optgroup>
                 <optgroup label="Propriétés">
                   <option value="coloring">Coloration gloutonne</option>
+                </optgroup>
+                <optgroup label="Chemins">
+                <option value="hamilton">Circuit Hamiltonien</option>
+                <option value="paths">Chemins simples</option>
+                <option value="euler">Chemin / Circuit Eulérien</option>
                 </optgroup>
               </select>
 
