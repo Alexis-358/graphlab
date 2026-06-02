@@ -30,6 +30,7 @@ export default function GraphCanvas() {
       userPanningEnabled: true,
       boxSelectionEnabled: false,
     })
+    ;(window as Window & { __cy?: cytoscape.Core }).__cy = cyRef.current
 
     return () => {
       cyRef.current?.destroy()

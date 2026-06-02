@@ -7,8 +7,9 @@ import PertView from '@/components/pert/PertView'
 import ExamplesModal from '@/components/ui/ExamplesModal'
 import { useGraphStore } from '@/store/graphStore'
 import { useThemeStore } from '@/store/themeStore'
+import LearnView from '@/components/learn/LearnView'
 
-type AppView = 'editor' | 'pert'
+type AppView = 'editor' | 'pert' | 'learn'
 
 export default function App() {
   const [view, setView]           = useState<AppView>('editor')
@@ -69,6 +70,19 @@ export default function App() {
                 {label}
               </button>
             ))}
+            {([
+              ['editor', 'Éditeur'],
+              ['pert',   'PERT / MPM'],
+              ['learn',  'Apprendre'],
+            ] as [AppView, string][]).map(([v, label]) => (
+              <button key={v} onClick={() => setView(v)}
+                className={[
+                  'rounded-md px-3 py-1 text-xs font-medium transition-all',
+                  view === v ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white',
+                ].join(' ')}>
+                {label}
+              </button>
+            ))}
           </nav>
         </div>
 
@@ -104,21 +118,27 @@ export default function App() {
       {view === 'editor' ? (
         <div className="flex flex-1 overflow-hidden">
           <Toolbar />
-          <main className="relative flex-1"
+          <main
+            className="relative flex-1"
             style={{
               background: dark ? '#0F172A' : '#F8FAFC',
               backgroundImage: dark
                 ? 'radial-gradient(circle, #1E293B 1px, transparent 1px)'
                 : 'radial-gradient(circle, #CBD5E1 1px, transparent 1px)',
               backgroundSize: '24px 24px',
-            }}>
+            }}
+          >
             <GraphCanvas />
           </main>
           <RightPanel />
         </div>
-      ) : (
+      ) : view === 'pert' ? (
         <div className="flex-1 overflow-hidden">
           <PertView />
+        </div>
+      ) : (
+        <div className="flex-1 overflow-hidden">
+          <LearnView />
         </div>
       )}
 

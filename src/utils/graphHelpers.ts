@@ -81,3 +81,14 @@ export function importGraphJSON(
   }
   reader.readAsText(file)
 }
+
+// Export du canvas Cytoscape en PNG
+export function exportCanvasPNG(): void {
+  const cy = (window as Window & { __cy?: cytoscape.Core }).__cy
+  if (!cy) { alert('Canvas non disponible.'); return }
+  const png = (cy as unknown as { png: (opts: object) => string }).png({ full: true, scale: 2 })
+  const a = document.createElement('a')
+  a.href = png
+  a.download = 'graphlab-export.png'
+  a.click()
+}
