@@ -21,11 +21,12 @@ export function dijkstra(graph: Graph, sourceId: string, targetId?: string): Alg
   nodes.forEach((n) => { dist[n.id] = Infinity; prev[n.id] = null })
   dist[sourceId] = 0
 
-  const steps = [{
-    description: `Initialisation : distance de ${label(nodes, sourceId)} = 0, tous les autres = ∞`,
-    highlightedEdges: [],
-    highlightedNodes: [sourceId],
-  }]
+  
+const steps = [{
+  description: `Initialisation : distance de ${label(nodes, sourceId)} = 0, tous les autres = ∞`,
+  highlightedEdges: [] as string[],
+  highlightedNodes: [sourceId] as string[],
+}]
 
   while (visited.size < nodes.length) {
     // Choisir le sommet non visité avec la plus petite distance
@@ -78,12 +79,12 @@ export function dijkstra(graph: Graph, sourceId: string, targetId?: string): Alg
   const distVal = targetId ? dist[targetId] : null
 
   steps.push({
-    description: tgtLabel && distVal !== Infinity
-      ? `Chemin optimal ${srcLabel} → ${tgtLabel} = ${distVal}`
-      : `Algorithme terminé. Distances calculées depuis ${srcLabel}.`,
-    highlightedEdges: pathEdges,
-    highlightedNodes: pathNodes,
-  })
+  description: tgtLabel && distVal !== Infinity
+    ? `Chemin optimal ${srcLabel} → ${tgtLabel} = ${distVal}`
+    : `Algorithme terminé. Distances calculées depuis ${srcLabel}.`,
+  highlightedEdges: pathEdges as string[],
+  highlightedNodes: pathNodes as string[],
+})
 
   return {
     name: 'Dijkstra',

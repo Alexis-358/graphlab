@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Graph, GraphNode, GraphEdge, Tool, AlgoResult, AlgoStep } from '@/types/graph'
+import type { Graph, GraphNode, GraphEdge, Tool, AlgoResult } from '@/types/graph'
 
 interface GraphStore {
   // --- État du graphe ---
@@ -50,7 +50,7 @@ const EMPTY_GRAPH: Graph = {
   weighted: false,
 }
 
-export const useGraphStore = create<GraphStore>((set, get) => ({
+export const useGraphStore = create<GraphStore>((set) => ({
   graph: EMPTY_GRAPH,
   history: [],
   future: [],

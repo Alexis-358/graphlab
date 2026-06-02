@@ -21,10 +21,10 @@ export function kruskal(graph: Graph): AlgoResult {
   let totalCost = 0
 
   const steps = [{
-    description: `Arêtes triées par poids croissant. ${sorted.length} arêtes à examiner.`,
-    highlightedEdges: [],
-    highlightedNodes: [],
-  }]
+  description: `Arêtes triées par poids croissant. ${sorted.length} arêtes à examiner.`,
+  highlightedEdges: [] as string[],
+  highlightedNodes: [] as string[],
+}]
 
   for (const edge of sorted) {
     if (find(edge.source) !== find(edge.target)) {
@@ -32,16 +32,16 @@ export function kruskal(graph: Graph): AlgoResult {
       mstEdges.push(edge.id)
       totalCost += edge.weight ?? 1
       steps.push({
-        description: `✓ Arête ajoutée (poids ${edge.weight ?? 1}). Coût total : ${totalCost}`,
-        highlightedEdges: [...mstEdges],
-        highlightedNodes: [],
-      })
+  description: `✓ Arête ajoutée (poids ${edge.weight ?? 1}). Coût total : ${totalCost}`,
+  highlightedEdges: [...mstEdges] as string[],
+  highlightedNodes: [] as string[],
+})
     } else {
       steps.push({
-        description: `✗ Arête ignorée (formerait un cycle, poids ${edge.weight ?? 1})`,
-        highlightedEdges: [...mstEdges],
-        highlightedNodes: [],
-      })
+  description: `✗ Arête ignorée (formerait un cycle, poids ${edge.weight ?? 1})`,
+  highlightedEdges: [...mstEdges] as string[],
+  highlightedNodes: [] as string[],
+})
     }
   }
 

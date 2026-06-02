@@ -11,10 +11,10 @@ export function prim(graph: Graph, sourceId: string): AlgoResult {
   let totalCost = 0
 
   const steps = [{
-    description: `Départ depuis le sommet ${label(graph, sourceId)}`,
-    highlightedEdges: [],
-    highlightedNodes: [sourceId],
-  }]
+  description: `Départ depuis le sommet ${label(graph, sourceId)}`,
+  highlightedEdges: [] as string[],
+  highlightedNodes: [sourceId] as string[],
+}]
 
   while (inMST.size < graph.nodes.length) {
     // Arêtes candidates : une extrémité dans MST, l'autre hors MST
@@ -36,10 +36,10 @@ export function prim(graph: Graph, sourceId: string): AlgoResult {
     totalCost += best.weight ?? 1
 
     steps.push({
-      description: `Arête sélectionnée vers ${label(graph, newNode)} (poids ${best.weight ?? 1}). Coût total : ${totalCost}`,
-      highlightedEdges: [...mstEdges],
-      highlightedNodes: [...inMST],
-    })
+  description: `Arête sélectionnée vers ${label(graph, newNode)} (poids ${best.weight ?? 1}). Coût total : ${totalCost}`,
+  highlightedEdges: [...mstEdges] as string[],
+  highlightedNodes: [...inMST] as string[],
+})
   }
 
   return {

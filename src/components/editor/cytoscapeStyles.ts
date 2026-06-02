@@ -1,6 +1,6 @@
-import type { Stylesheet } from 'cytoscape'
+import type { StylesheetStyle } from 'cytoscape'
 
-export const cytoscapeStyles: Stylesheet[] = [
+export const cytoscapeStyles: StylesheetStyle[] = [
   {
     selector: 'node',
     style: {
@@ -11,8 +11,8 @@ export const cytoscapeStyles: Stylesheet[] = [
       'text-valign': 'center',
       'text-halign': 'center',
       'color': '#1A3C6B',
-      'font-size': '13px',
-      'font-weight': '600',
+      'font-size': 13,
+      'font-weight': 600,
       'width': 40,
       'height': 40,
     },
@@ -50,7 +50,7 @@ export const cytoscapeStyles: Stylesheet[] = [
       'target-arrow-shape': 'none',
       'curve-style': 'bezier',
       'label': 'data(label)',
-      'font-size': '11px',
+      'font-size': 11,
       'color': '#64748B',
       'text-background-color': '#ffffff',
       'text-background-opacity': 1,
