@@ -26,6 +26,7 @@ interface GraphStore {
   setWeighted: (weighted: boolean) => void
   clearGraph: () => void
   loadGraph: (graph: Graph) => void
+  updateEdgeWeight: (id: string, weight: number) => void
 
   // --- Actions : UI ---
   setActiveTool: (tool: Tool) => void
@@ -101,6 +102,15 @@ export const useGraphStore = create<GraphStore>((set) => ({
       future: [],
     }
   }),
+
+  updateEdgeWeight: (id: string, weight: number) => set((s) => ({
+  graph: {
+    ...s.graph,
+    edges: s.graph.edges.map((e) =>
+      e.id === id ? { ...e, weight } : e
+    ),
+  },
+})),
 
   moveNode: (id, x, y) => set((s) => ({
     graph: {

@@ -163,6 +163,20 @@ export default function GraphCanvas() {
       }
     })
 
+    // Double-clic sur une arête → modifier le poids
+  cy.on('dblclick', 'edge', (e) => {
+    if (!useGraphStore.getState().graph.weighted) return
+    const edgeId = e.target.id() as string
+    const currentEdge = useGraphStore.getState().graph.edges.find(ed => ed.id === edgeId)
+    const currentWeight = currentEdge?.weight ?? 1
+    const input = prompt(`Nouveau poids pour cette arête :`, String(currentWeight))
+    if (input === null) return
+    const val = parseFloat(input)
+    if (!isNaN(val)) {
+      useGraphStore.getState().updateEdgeWeight(edgeId, val)
+    }
+  })
+
     // Drag d'un nœud → mise à jour de la position dans le store
     cy.on('dragfree', 'node', (e) => {
       const pos = e.target.position()
@@ -192,6 +206,30 @@ export default function GraphCanvas() {
     addEdge: 'cell',
     delete: 'not-allowed',
   }
+
+  // Écoute l'événement de coloration depuis RightPanel
+  useEffect(() => {
+    const COLOR_PALETTE = [
+      '#2563EB', '#16A34A', '#DC2626', '#D97706',
+      '#7C3AED', '#0891B2', '#DB2777', '#65A30D',
+    ]
+
+    const handler = (e: Event) => {
+      const cy = cyRef.current
+      if (!cy) return
+      const { colorMap } = (e as CustomEvent).detail as { colorMap: Record<string, number> }
+      Object.entries(colorMap).forEach(([nodeId, colorIdx]) => {
+        cy.getElementById(nodeId).style({
+          'background-color': COLOR_PALETTE[colorIdx % COLOR_PALETTE.length],
+          'color': '#ffffff',
+          'border-color': COLOR_PALETTE[colorIdx % COLOR_PALETTE.length],
+        })
+      })
+    }
+
+    window.addEventListener('graphlab:coloring', handler)
+    return () => window.removeEventListener('graphlab:coloring', handler)
+  }, [])
 
   return (
     <div
