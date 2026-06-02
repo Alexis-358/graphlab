@@ -1,12 +1,20 @@
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
+:root {
+  --navy: #1A3C6B;
+  --blue: #2563EB;
+  --amber: #F59E0B;
 }
+
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   font-family: Inter, system-ui, sans-serif;
-  background: #F8FAFC;
-  color: #111827;
 }
+
+/* Scrollbar fine */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }

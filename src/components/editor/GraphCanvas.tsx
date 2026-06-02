@@ -3,10 +3,13 @@ import cytoscape, { type Core } from 'cytoscape'
 import { useGraphStore } from '@/store/graphStore'
 import { cytoscapeStyles } from './cytoscapeStyles'
 import { uid, nextLabel } from '@/utils/graphHelpers'
+import { useThemeStore } from '@/store/themeStore'
 
 export default function GraphCanvas() {
   const containerRef = useRef<HTMLDivElement>(null)
   const cyRef = useRef<Core | null>(null)
+  const { dark } = useThemeStore()
+
 
   const {
     graph, activeTool, edgeSourceId,
@@ -230,6 +233,31 @@ export default function GraphCanvas() {
     window.addEventListener('graphlab:coloring', handler)
     return () => window.removeEventListener('graphlab:coloring', handler)
   }, [])
+
+  useEffect(() => {
+    const cy = cyRef.current
+    if (!cy) return
+    cy.style([
+      ...cytoscapeStyles,
+      {
+        selector: 'node',
+        style: {
+          'background-color': dark ? '#1E293B' : '#ffffff',
+          'border-color': dark ? '#3B82F6' : '#2563EB',
+          'color': dark ? '#93C5FD' : '#1A3C6B',
+        } as cytoscape.Css.Node,
+      },
+      {
+        selector: 'edge',
+        style: {
+          'line-color': dark ? '#334155' : '#94A3B8',
+          'target-arrow-color': dark ? '#334155' : '#94A3B8',
+          'color': dark ? '#64748B' : '#64748B',
+          'text-background-color': dark ? '#0F172A' : '#ffffff',
+        } as cytoscape.Css.Edge,
+      },
+    ])
+  }, [dark])
 
   return (
     <div
