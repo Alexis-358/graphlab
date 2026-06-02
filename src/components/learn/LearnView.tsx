@@ -360,7 +360,12 @@ export default function LearnView() {
                       : ''
                   }`}>
                   <div className="flex items-start justify-between mb-2">
-                    <span className="text-2xl">{lesson.icon}</span>
+                    <div
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-white text-base font-bold mb-2"
+                    style={{ background: getCategoryColor(lesson.category) }}
+                    >
+                    {lesson.title.charAt(0)}
+                    </div>
                     {isDone && (
                       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
                         ✓ Terminé
@@ -394,6 +399,16 @@ export default function LearnView() {
       )}
     </div>
   )
+}
+
+function getCategoryColor(category: string): string {
+  const map: Record<string, string> = {
+    'Fondamental': '#16A34A',
+    'Propriétés':  '#D97706',
+    'Algorithmes': '#2563EB',
+    'Avancé':      '#7C3AED',
+  }
+  return map[category] ?? '#2563EB'
 }
 
 /* ── Composant de la vue leçon ── */

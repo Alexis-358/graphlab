@@ -36,14 +36,18 @@ export default function App() {
     <div className={`flex h-screen flex-col overflow-hidden ${dark ? 'bg-slate-900' : 'bg-white'}`}>
 
       {/* Header */}
-      <header className="flex h-11 flex-shrink-0 items-center justify-between px-4"
-        style={{ background: '#1A3C6B', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-
+      <header
+        className="flex h-11 flex-shrink-0 items-center justify-between px-4"
+        style={{ background: '#1A3C6B', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+      >
+        {/* Gauche : Logo + Nav */}
         <div className="flex items-center gap-4">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md"
-              style={{ background: '#F59E0B' }}>
+            <div
+              className="flex h-7 w-7 items-center justify-center rounded-md"
+              style={{ background: '#F59E0B' }}
+            >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <circle cx="2" cy="7" r="2" fill="#1a1a1a"/>
                 <circle cx="12" cy="3" r="2" fill="#1a1a1a"/>
@@ -54,38 +58,35 @@ export default function App() {
               </svg>
             </div>
             <span className="text-base font-semibold text-white">GraphLab</span>
-            <span className="text-xs text-blue-300">Excellence Project</span>
+            <span className="text-xs text-blue-300">Projet d'excellence</span>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation — 3 onglets seulement */}
           <nav className="flex gap-1">
-            {([['editor','Éditeur'], ['pert','PERT / MPM']] as [AppView,string][]).map(([v,label]) => (
-              <button key={v} onClick={() => setView(v)}
+            {(
+              [
+                ['editor', 'Éditeur'],
+                ['pert',   'PERT / MPM'],
+                ['learn',  'Apprendre'],
+              ] as [AppView, string][]
+            ).map(([v, label]) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
                 className={[
                   'rounded-md px-3 py-1 text-xs font-medium transition-all',
                   view === v
                     ? 'bg-white/20 text-white'
                     : 'text-blue-200 hover:bg-white/10 hover:text-white',
-                ].join(' ')}>
-                {label}
-              </button>
-            ))}
-            {([
-              ['editor', 'Éditeur'],
-              ['pert',   'PERT / MPM'],
-              ['learn',  'Apprendre'],
-            ] as [AppView, string][]).map(([v, label]) => (
-              <button key={v} onClick={() => setView(v)}
-                className={[
-                  'rounded-md px-3 py-1 text-xs font-medium transition-all',
-                  view === v ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white',
-                ].join(' ')}>
+                ].join(' ')}
+              >
                 {label}
               </button>
             ))}
           </nav>
         </div>
 
+        {/* Droite : infos + Exemples + Dark mode */}
         <div className="flex items-center gap-2">
           {view === 'editor' && (
             <div className="flex items-center gap-3 text-xs text-blue-200 mr-2">
@@ -95,8 +96,6 @@ export default function App() {
               <span>{graph.weighted ? 'Pondéré' : 'Non pondéré'}</span>
             </div>
           )}
-
-          {/* Bouton Exemples */}
           <button
             onClick={() => setShowExamples(true)}
             className="flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium text-blue-200 transition-colors hover:bg-white/10 hover:text-white"
@@ -104,12 +103,12 @@ export default function App() {
             <BookOpen size={13} />
             Exemples
           </button>
-
-          {/* Dark mode */}
-          <button onClick={toggleDark}
+          <button
+            onClick={toggleDark}
             className="flex h-7 w-7 items-center justify-center rounded-md text-blue-200 transition-colors hover:bg-white/10"
-            title={dark ? 'Mode clair' : 'Mode sombre'}>
-            {dark ? <Sun size={15}/> : <Moon size={15}/>}
+            title={dark ? 'Mode clair' : 'Mode sombre'}
+          >
+            {dark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
         </div>
       </header>
