@@ -1,73 +1,99 @@
 import { useEffect, useState } from 'react'
 import { Moon, Sun, BookOpen } from 'lucide-react'
+
 import GraphCanvas from '@/components/editor/GraphCanvas'
 import Toolbar from '@/components/editor/Toolbar'
 import RightPanel from '@/components/panels/RightPanel'
 import PertView from '@/components/pert/PertView'
+import LearnView from '@/components/learn/LearnView'
 import ExamplesModal from '@/components/ui/ExamplesModal'
+import AuthButton from '@/components/auth/AuthButton'
+import CloudPanel from '@/components/cloud/CloudPanel'
+
 import { useGraphStore } from '@/store/graphStore'
 import { useThemeStore } from '@/store/themeStore'
-import LearnView from '@/components/learn/LearnView'
+import { useAuthStore } from '@/store/authStore'
 
-type AppView = 'editor' | 'pert' | 'learn'
+type AppView = 'editor' | 'pert' | 'learn' | 'cloud'
 
 export default function App() {
-  const [view, setView]           = useState<AppView>('editor')
+  const [view, setView] = useState<AppView>('editor')
   const [showExamples, setShowExamples] = useState(false)
+
   const { graph, setActiveTool, undo, redo } = useGraphStore()
   const { dark, toggleDark } = useThemeStore()
+  const init = useAuthStore((state) => state.init)
+
+  useEffect(() => {
+    init()
+  }, [init])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return
+      }
+
       if (view !== 'editor') return
+
       if (e.key === 's') setActiveTool('select')
       if (e.key === 'n') setActiveTool('addNode')
       if (e.key === 'a') setActiveTool('addEdge')
       if (e.key === 'd') setActiveTool('delete')
-      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo() }
-      if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo() }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault()
+        undo()
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault()
+        redo()
+      }
     }
+
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [setActiveTool, undo, redo, view])
 
   return (
     <div className={`flex h-screen flex-col overflow-hidden ${dark ? 'bg-slate-900' : 'bg-white'}`}>
-
       {/* Header */}
       <header
         className="flex h-11 flex-shrink-0 items-center justify-between px-4"
         style={{ background: '#1A3C6B', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
       >
-        {/* Gauche : Logo + Nav */}
+        {/* Gauche : logo + navigation */}
         <div className="flex items-center gap-4">
-          {/* Logo */}
           <div className="flex items-center gap-2">
             <div
               className="flex h-7 w-7 items-center justify-center rounded-md"
               style={{ background: '#F59E0B' }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <circle cx="2" cy="7" r="2" fill="#1a1a1a"/>
-                <circle cx="12" cy="3" r="2" fill="#1a1a1a"/>
-                <circle cx="12" cy="11" r="2" fill="#1a1a1a"/>
-                <line x1="4" y1="7" x2="10" y2="3" stroke="#1a1a1a" strokeWidth="1.5"/>
-                <line x1="4" y1="7" x2="10" y2="11" stroke="#1a1a1a" strokeWidth="1.5"/>
-                <line x1="10" y1="3" x2="10" y2="11" stroke="#1a1a1a" strokeWidth="1.5"/>
+                <circle cx="2" cy="7" r="2" fill="#1a1a1a" />
+                <circle cx="12" cy="3" r="2" fill="#1a1a1a" />
+                <circle cx="12" cy="11" r="2" fill="#1a1a1a" />
+                <line x1="4" y1="7" x2="10" y2="3" stroke="#1a1a1a" strokeWidth="1.5" />
+                <line x1="4" y1="7" x2="10" y2="11" stroke="#1a1a1a" strokeWidth="1.5" />
+                <line x1="10" y1="3" x2="10" y2="11" stroke="#1a1a1a" strokeWidth="1.5" />
               </svg>
             </div>
+
             <span className="text-base font-semibold text-white">GraphLab</span>
             <span className="text-xs text-blue-300">Projet d'excellence</span>
           </div>
 
-          {/* Navigation — 3 onglets seulement */}
           <nav className="flex gap-1">
             {(
               [
                 ['editor', 'Éditeur'],
-                ['pert',   'PERT / MPM'],
-                ['learn',  'Apprendre'],
+                ['pert', 'PERT / MPM'],
+                ['learn', 'Apprendre'],
+                ['cloud', '☁️ Cloud'],
               ] as [AppView, string][]
             ).map(([v, label]) => (
               <button
@@ -86,16 +112,17 @@ export default function App() {
           </nav>
         </div>
 
-        {/* Droite : infos + Exemples + Dark mode */}
+        {/* Droite : infos + actions */}
         <div className="flex items-center gap-2">
           {view === 'editor' && (
-            <div className="flex items-center gap-3 text-xs text-blue-200 mr-2">
+            <div className="mr-2 flex items-center gap-3 text-xs text-blue-200">
               <span>{graph.nodes.length} sommets</span>
               <span>{graph.edges.length} arêtes</span>
               <span>{graph.directed ? 'Orienté' : 'Non orienté'}</span>
               <span>{graph.weighted ? 'Pondéré' : 'Non pondéré'}</span>
             </div>
           )}
+
           <button
             onClick={() => setShowExamples(true)}
             className="flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium text-blue-200 transition-colors hover:bg-white/10 hover:text-white"
@@ -103,6 +130,7 @@ export default function App() {
             <BookOpen size={13} />
             Exemples
           </button>
+
           <button
             onClick={toggleDark}
             className="flex h-7 w-7 items-center justify-center rounded-md text-blue-200 transition-colors hover:bg-white/10"
@@ -110,6 +138,8 @@ export default function App() {
           >
             {dark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
+
+          <AuthButton />
         </div>
       </header>
 
@@ -117,6 +147,7 @@ export default function App() {
       {view === 'editor' ? (
         <div className="flex flex-1 overflow-hidden">
           <Toolbar />
+
           <main
             className="relative flex-1"
             style={{
@@ -129,11 +160,16 @@ export default function App() {
           >
             <GraphCanvas />
           </main>
+
           <RightPanel />
         </div>
       ) : view === 'pert' ? (
         <div className="flex-1 overflow-hidden">
           <PertView />
+        </div>
+      ) : view === 'cloud' ? (
+        <div className="flex-1 overflow-hidden">
+          <CloudPanel />
         </div>
       ) : (
         <div className="flex-1 overflow-hidden">
@@ -143,16 +179,19 @@ export default function App() {
 
       {/* Footer */}
       {view === 'editor' && (
-        <footer className={`flex h-6 flex-shrink-0 items-center border-t px-3 text-xs ${
-          dark ? 'border-slate-700 bg-slate-900 text-slate-500'
-               : 'border-slate-200 bg-slate-50 text-slate-400'
-        }`}>
-          <span className="mr-2 h-2 w-2 rounded-full bg-green-400"/>
+        <footer
+          className={`flex h-6 flex-shrink-0 items-center border-t px-3 text-xs ${
+            dark
+              ? 'border-slate-700 bg-slate-900 text-slate-500'
+              : 'border-slate-200 bg-slate-50 text-slate-400'
+          }`}
+        >
+          <span className="mr-2 h-2 w-2 rounded-full bg-green-400" />
           S=Sélection · N=Sommet · A=Arête · D=Supprimer · Ctrl+Z=Annuler
         </footer>
       )}
 
-      {/* Modal Exemples */}
+      {/* Modal exemples */}
       {showExamples && <ExamplesModal onClose={() => setShowExamples(false)} />}
     </div>
   )
