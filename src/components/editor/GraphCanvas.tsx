@@ -23,7 +23,7 @@ export default function GraphCanvas() {
     algoResult, currentStep,
   } = useGraphStore()
 
-  // État du popover de modification de poids
+  // ── État du popover de poids ─────────────────────────────────────────
   const [weightPopover, setWeightPopover] = useState<{
     x: number
     y: number
@@ -31,6 +31,16 @@ export default function GraphCanvas() {
     initialValue: number
     edgeLabel: string
   } | null>(null)
+
+  // Ref stable pour setWeightPopover (évite les closures périmées)
+  const setPopoverRef      = useRef(setWeightPopover)
+  setPopoverRef.current    = setWeightPopover
+
+  // ── Refs pour les outils actifs (mis à jour sans recréer les events) ─
+  const handleToolRef      = useRef(activeTool)
+  const edgeSourceRef      = useRef(edgeSourceId)
+  handleToolRef.current    = activeTool
+  edgeSourceRef.current    = edgeSourceId
 
   // ── 1. Initialisation Cytoscape (une seule fois) ─────────────────────
   useEffect(() => {
@@ -40,12 +50,12 @@ export default function GraphCanvas() {
       container: containerRef.current,
       style: cytoscapeStyles,
       layout: { name: 'preset' },
-      userZoomingEnabled: true,
-      userPanningEnabled: true,
+      userZoomingEnabled:  true,
+      userPanningEnabled:  true,
       boxSelectionEnabled: false,
     })
 
-    // Expose cy pour l'export PNG
+    // Expose cy globalement pour l'export PNG
     ;(window as Window & { __cy?: cytoscape.Core }).__cy = cyRef.current
 
     return () => {
@@ -81,9 +91,8 @@ export default function GraphCanvas() {
 
     // Ajouter / mettre à jour les arêtes
     graph.edges.forEach((edge) => {
-      const edgeLabel = graph.weighted && edge.weight != null
-        ? String(edge.weight)
-        : ''
+      const edgeLabel =
+        graph.weighted && edge.weight != null ? String(edge.weight) : ''
 
       if (!cy.getElementById(edge.id).length) {
         cy.add({
@@ -148,10 +157,10 @@ export default function GraphCanvas() {
       {
         selector: 'edge',
         style: {
-          'line-color':           dark ? '#334155' : '#94A3B8',
-          'target-arrow-color':   dark ? '#334155' : '#94A3B8',
-          'color':                dark ? '#64748B' : '#64748B',
-          'text-background-color':dark ? '#0F172A' : '#ffffff',
+          'line-color':            dark ? '#334155' : '#94A3B8',
+          'target-arrow-color':    dark ? '#334155' : '#94A3B8',
+          'color':                 dark ? '#64748B' : '#64748B',
+          'text-background-color': dark ? '#0F172A' : '#ffffff',
         } as cytoscape.Css.Edge,
       },
     ])
@@ -167,7 +176,7 @@ export default function GraphCanvas() {
         colorMap: Record<string, number>
       }
 
-      // Réinitialise si colorMap vide (effacement résultat)
+      // Réinitialise si colorMap vide
       if (!Object.keys(colorMap).length) {
         cy.nodes().forEach((n) => {
           n.style({
@@ -192,12 +201,7 @@ export default function GraphCanvas() {
     return () => window.removeEventListener('graphlab:coloring', handler)
   }, [dark])
 
-  // ── 6. Gestion des événements Cytoscape ─────────────────────────────
-  const handleToolRef   = useRef(activeTool)
-  const edgeSourceRef   = useRef(edgeSourceId)
-  handleToolRef.current = activeTool
-  edgeSourceRef.current = edgeSourceId
-
+  // ── 6. Événements Cytoscape ──────────────────────────────────────────
   const setupEvents = useCallback(() => {
     const cy = cyRef.current
     if (!cy) return
@@ -261,31 +265,34 @@ export default function GraphCanvas() {
       }
     })
 
-    // Double-clic sur une arête → popover de modification du poids
-    cy.on('dblclick', 'edge', (e) => {
+    // ── Double-tap sur une arête → popover moderne de modification du poids
+    // Note : "dbltap" est l'événement correct de Cytoscape.js (pas "dblclick")
+    cy.on('dbltap', 'edge', (e) => {
       const { weighted, nodes, edges } = useGraphStore.getState().graph
       if (!weighted) return
 
-      const edgeId   = e.target.id() as string
-      const edge     = edges.find((ed) => ed.id === edgeId)
+      const edgeId = e.target.id() as string
+      const edge   = edges.find((ed) => ed.id === edgeId)
 
-      // Position rendue (pixels écran) du clic
-      const rendPos  = e.renderedPosition as { x: number; y: number }
+      // Position en pixels écran du clic
+      const rendPos = e.renderedPosition as { x: number; y: number } | undefined
+      const pos     = rendPos ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 
-      // Label "A → B" pour l'en-tête du popover
-      const src      = nodes.find((n) => n.id === edge?.source)?.label ?? ''
-      const tgt      = nodes.find((n) => n.id === edge?.target)?.label ?? ''
+      // Label "A → B" pour l'en-tête
+      const src = nodes.find((n) => n.id === edge?.source)?.label ?? ''
+      const tgt = nodes.find((n) => n.id === edge?.target)?.label ?? ''
 
-      setWeightPopover({
-        x:            rendPos.x,
-        y:            rendPos.y,
+      // Utilise le ref pour éviter tout problème de closure
+      setPopoverRef.current({
+        x:            pos.x,
+        y:            pos.y,
         edgeId,
         initialValue: edge?.weight ?? 1,
         edgeLabel:    src && tgt ? `${src} → ${tgt}` : '',
       })
     })
 
-    // Drag d'un nœud → mise à jour de la position dans le store
+    // Drag d'un nœud → mise à jour de la position
     cy.on('dragfree', 'node', (e) => {
       const pos = e.target.position()
       moveNode(e.target.id() as string, pos.x, pos.y)
@@ -309,7 +316,7 @@ export default function GraphCanvas() {
     setupEvents()
   }, [setupEvents])
 
-  // ── Curseur selon l'outil actif ──────────────────────────────────────
+  // ── Curseur selon l'outil ────────────────────────────────────────────
   const cursorMap: Record<string, string> = {
     select:  'default',
     addNode: 'crosshair',
@@ -320,6 +327,7 @@ export default function GraphCanvas() {
   // ── Rendu ────────────────────────────────────────────────────────────
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+
       {/* Canvas Cytoscape */}
       <div
         ref={containerRef}
@@ -330,7 +338,7 @@ export default function GraphCanvas() {
         }}
       />
 
-      {/* Popover de modification du poids */}
+      {/* Popover de modification du poids — s'affiche au-dessus du canvas */}
       {weightPopover && (
         <WeightPopover
           x={weightPopover.x}
@@ -343,6 +351,7 @@ export default function GraphCanvas() {
           onClose={() => setWeightPopover(null)}
         />
       )}
+
     </div>
   )
 }
