@@ -15,7 +15,7 @@ interface CloudStore {
   loadShared: (token: string) => Promise<CloudGraph | null>
 }
 
-export const useCloudStore = create<CloudStore>((set, get) => ({
+export const useCloudStore = create<CloudStore>((set) => ({
   graphs: [],
   saving: false,
   loading: false,
