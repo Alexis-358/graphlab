@@ -19,12 +19,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   signInWithGoogle: async () => {
     await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
+        provider: 'google',
+        options: {
         redirectTo: window.location.origin,
-      },
+        },
     })
-  },
+    },
 
   signOut: async () => {
     await supabase.auth.signOut()

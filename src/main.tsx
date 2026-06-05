@@ -18,17 +18,14 @@ async function loadSharedGraph() {
   const params = new URLSearchParams(window.location.search)
   const token  = params.get('share')
   if (!token) return
-
   const { data } = await supabase
     .from('graphs')
     .select('*')
     .eq('share_token', token)
     .eq('is_public', true)
     .single()
-
   if (data?.data) {
     useGraphStore.getState().loadGraph(data.data as Graph)
-    // Nettoyer l'URL
     window.history.replaceState({}, '', window.location.pathname)
   }
 }
